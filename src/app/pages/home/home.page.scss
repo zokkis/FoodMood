@@ -1,0 +1,5 @@
+ion-button::part(native) {
+	background: var(--ion-toolbar-background, var(--color));
+	color: var(--color);
+	box-shadow: unset;
+}

@@ -1,0 +1,29 @@
+<my-header></my-header>
+
+<ion-content id="cont">
+	<form #form="ngForm" (ngSubmit)="login(form.value)" (keyup.enter)="login(form.value)">
+		<ion-grid>
+			<ion-row color="primary" justify-content-center>
+				<ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+					<div text-center>
+						<h3>Login</h3>
+					</div>
+					<div padding>
+						<ion-item>
+							<ion-input name="username" type="text" placeholder="Benutzername" pattern="(.){5,50}$" ngModel required>
+							</ion-input>
+						</ion-item>
+						<ion-item>
+							<ion-input name="password" type="password" placeholder="Passwort" pattern="(.){6,}" ngModel required>
+							</ion-input>
+						</ion-item>
+					</div>
+					<div padding>
+						<ion-button size="large" type="submit" [disabled]="form.invalid" expand="block">Login</ion-button>
+					</div>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
+	</form>
+	<p class="registerText" routerLink="/register">Registrieren</p>
+</ion-content>

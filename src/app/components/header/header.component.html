@@ -1,0 +1,13 @@
+<my-menu *ngIf="menu"></my-menu>
+
+<ion-header>
+	<ion-toolbar>
+		<ion-buttons slot="start">
+			<ion-menu-button *ngIf="menu" menu="menu"></ion-menu-button>
+			<ion-back-button *ngIf="backButton"></ion-back-button>
+		</ion-buttons>
+		<ion-title>
+			{{ title }}
+		</ion-title>
+	</ion-toolbar>
+</ion-header>

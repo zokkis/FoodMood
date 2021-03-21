@@ -1,7 +1,7 @@
 {
-  "name": "FoodMood",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular"
+	"name": "FoodMood",
+	"integrations": {
+		"capacitor": {}
+	},
+	"type": "angular"
 }
