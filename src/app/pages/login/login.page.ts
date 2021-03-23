@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
 import { User } from 'src/app/models/user';
@@ -10,7 +10,7 @@ import { RestConnectorService } from 'src/app/services/restConnector/rest-connec
 	templateUrl: './login.page.html',
 	styleUrls: ['./login.page.scss'],
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
 
 	constructor(
 		private http: RestConnectorService,
@@ -19,14 +19,26 @@ export class LoginPage {
 		private infoCtrl: InfoControllerService,
 		private fingerprint: FingerprintAIO,
 	) {
-
-		this.route.queryParams.subscribe(() => {
-			const user = this.router.getCurrentNavigation()?.extras?.state?.user;
-			user ? this.setFormAndLogin(user) : this.searchForSecret();
-		});
 	}
 
-	login(formValue: User) {
+	ngOnInit(): void {
+		this.route.queryParams.subscribe(() => {
+			const user = this.router.getCurrentNavigation()?.extras?.state?.user;
+			user ? setTimeout(() => this.setFormAndLogin(user), 250) : this.searchForSecret();
+		});
+
+		if (!sessionStorage.getItem('firstLogin')) {
+			sessionStorage.setItem('firstLogin', 'false');
+			this.http.get('info')
+				.then(data => {
+					if (data.isDev) {
+						this.infoCtrl.showSimpleAlert('!ACHTUNG! - DEV-MODE\n\nDer Server ist im Test-Modus gestartet! \nAlle Daten die gespeichert werden könnten ohne Grund beim nächsten mal einfach weg sein! \nZudem sind Fehler aller Art nicht auszuschließen!')
+					}
+				});
+		}
+	}
+
+	login(formValue: User): void {
 		this.infoCtrl.enableLoadingAnimation();
 
 		RestConnectorService.setAuthToHeader(formValue);
@@ -42,7 +54,7 @@ export class LoginPage {
 			.finally(() => this.infoCtrl.disableLoadingAnimation());
 	}
 
-	private searchForSecret() {
+	private searchForSecret(): void {
 		this.fingerprint.loadBiometricSecret({})
 			.then(data => this.setFormAndLogin(JSON.parse(data)))
 			.catch(err => {
@@ -54,9 +66,9 @@ export class LoginPage {
 			});
 	}
 
-	private setFormAndLogin(data: User) {
+	private setFormAndLogin(data: User): void {
 		document.getElementsByName('username')[0]['value'] = data.username;
 		document.getElementsByName('password')[0]['value'] = data.password;
-		//this.login(data);
+		this.login(data);
 	}
 }

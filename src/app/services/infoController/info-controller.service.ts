@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ToastController, PopoverController, LoadingController } from '@ionic/angular';
 
+import { Plugins } from '@capacitor/core';
+
+const { Modals } = Plugins;
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -30,6 +34,12 @@ export class InfoControllerService {
 			component: component
 		})
 			.then(popover => popover.present());
+	}
+
+	public showSimpleAlert(message: string) {
+		Modals.alert({
+			message, title: 'Title'
+		});
 	}
 
 	public enableLoadingAnimation(message: string = 'Warten auf Server!'): void {
