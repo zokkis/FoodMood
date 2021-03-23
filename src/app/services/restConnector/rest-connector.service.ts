@@ -1,64 +1,39 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { AbstractRestConnectorService } from './abstract-rest-connector.service';
+import { ServerInfo } from 'src/app/models/server-info';
+import { User } from 'src/app/models/user';
 
 @Injectable({
 	providedIn: 'root'
 })
-export class RestConnectorService {
-
-	private readonly baseUrl: string = 'https://foodmood.ddns.net/';
-
-	private static httpOptions: any = {
-		responseType: 'text',
-	};
+export class RestConnectorService extends AbstractRestConnectorService {
 
 	constructor(
-		private http: HttpClient,
+		protected http: HttpClient,
 	) {
+		super(http);
 	}
 
-	public get(urlExtenstion: string): Promise<any> {
-		return new Promise((resolve, reject) => {
-			this.http.get(this.getFullUrl(urlExtenstion), RestConnectorService.httpOptions)
-				.subscribe(data => this.parser(resolve, reject, data));
-		});
+	public getServerInfo(): Promise<ServerInfo> {
+		return this.get<ServerInfo>('info');
 	}
 
-	public post(urlExtenstion: string, data: any): Promise<any> {
-		return new Promise((resolve, reject) => {
-			this.http.post(this.getFullUrl(urlExtenstion), data, RestConnectorService.httpOptions)
-				.subscribe(data => this.parser(resolve, reject, data));
-		});
+	public login(user: User): Promise<User> {
+		AbstractRestConnectorService.setAuthToHeader(user);
+		return this.get<User>('login',
+			data => {
+				data.permissions = data.permissions.map(perm => perm.id ? perm : { id: Number(perm) });
+				return data;
+			});
 	}
 
-	public put(urlExtenstion: string, data: any): Promise<any> {
-		return new Promise((resolve, reject) => {
-			this.http.post(this.getFullUrl(urlExtenstion), data, RestConnectorService.httpOptions)
-				.subscribe(data => this.parser(resolve, reject, data));
-		});
+	public register(user: User): Promise<User> {
+		return this.post<User>('register', user);
 	}
 
-	public delete(urlExtenstion: string): Promise<any> {
-		return new Promise((resolve, reject) => {
-			this.http.post(this.getFullUrl(urlExtenstion), RestConnectorService.httpOptions)
-				.subscribe(data => this.parser(resolve, reject, data));
-		});
+	public changeUsername(newUsername: string): Promise<unknown> {
+		return this.put('changeusername', newUsername);
 	}
 
-	public static setAuthToHeader(auth: { username: string, password: string }) {
-		RestConnectorService.httpOptions.headers = { 'Authorization': 'Basic ' + btoa(auth.username + ':' + auth.password) };
-	}
-
-	private parser(resolve, reject, data) {
-		try {
-			resolve(JSON.parse(new String(data || '[]').toString()))
-		} catch (err) {
-			console.error(err);
-			reject(err);
-		}
-	}
-
-	private getFullUrl(urlExtenstion: string) {
-		return this.baseUrl + urlExtenstion;
-	}
 }

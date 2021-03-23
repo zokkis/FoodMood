@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FingerprintAIO } from '@ionic-native/fingerprint-aio/ngx';
-import { User } from 'src/app/models/user';
+import { getInfo, setInfo } from 'src/app/models/server-info';
+import { setUser, User } from 'src/app/models/user';
 import { InfoControllerService } from 'src/app/services/infoController/info-controller.service';
 import { RestConnectorService } from 'src/app/services/restConnector/rest-connector.service';
 
@@ -27,13 +28,17 @@ export class LoginPage implements OnInit {
 			user ? setTimeout(() => this.setFormAndLogin(user), 250) : this.searchForSecret();
 		});
 
-		if (!sessionStorage.getItem('firstLogin')) {
-			sessionStorage.setItem('firstLogin', 'false');
-			this.http.get('info')
+		if (!getInfo()) {
+			this.http.getServerInfo()
 				.then(data => {
+					setInfo(data);
 					if (data.isDev) {
 						this.infoCtrl.showSimpleAlert('!ACHTUNG! - DEV-MODE\n\nDer Server ist im Test-Modus gestartet! \nAlle Daten die gespeichert werden könnten ohne Grund beim nächsten mal einfach weg sein! \nZudem sind Fehler aller Art nicht auszuschließen!')
 					}
+				})
+				.catch(err => {
+					console.error(err);
+					setInfo({ isOnline: false });
 				});
 		}
 	}
@@ -41,10 +46,10 @@ export class LoginPage implements OnInit {
 	login(formValue: User): void {
 		this.infoCtrl.enableLoadingAnimation();
 
-		RestConnectorService.setAuthToHeader(formValue);
-		this.http.post('login', formValue)
-			.then(() => {
+		this.http.login(formValue)
+			.then(user => {
 				this.infoCtrl.showSimpleTopToast('Erfolgreich eingeloggt!');
+				setUser(user);
 				this.router.navigate(['home'], { replaceUrl: true });
 			})
 			.catch(err => {

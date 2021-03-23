@@ -26,7 +26,7 @@ export class RegisterPage {
 	register(formValue: User): void {
 		this.infoCtrl.enableLoadingAnimation();
 
-		this.http.post('register', formValue)
+		this.http.register(formValue)
 			.then(() => {
 				this.saveSecret(formValue);
 				this.infoCtrl.showSimpleTopToast('Erfolgreich registriert!', 1000);

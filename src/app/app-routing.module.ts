@@ -1,11 +1,8 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { PagesGuard } from './guards/pages.guard';
 
 const routes: Routes = [
-	{
-		path: 'home',
-		loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule)
-	},
 	{
 		path: '',
 		redirectTo: 'login',
@@ -18,6 +15,11 @@ const routes: Routes = [
 	{
 		path: 'register',
 		loadChildren: () => import('./pages/register/register.module').then(m => m.RegisterPageModule)
+	},
+	{
+		path: 'home',
+		loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule),
+		canLoad: [PagesGuard]
 	},
 ];
 
